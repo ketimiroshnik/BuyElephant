@@ -41,12 +41,18 @@ def handle_dialog(req, res):
                 "Не хочу.",
                 "Не буду.",
                 "Отстань!",
-            ]
+            ],
+            'task': 1
         }
         res['response']['text'] = 'Привет! Купи слона!'
         res['response']['buttons'] = get_suggests(user_id)
         return
-
+    if sessionStorage[user_id]['task'] == 1:
+        word = 'слон'
+        f = False
+    else:
+        word = 'кролик'
+        f = True
     if req['request']['original_utterance'].lower() in [
         'ладно',
         'куплю',
@@ -55,12 +61,23 @@ def handle_dialog(req, res):
         'я покупаю',
         'я куплю'
     ]:
-        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True
+        res['response']['text'] = f'{word.capitalize()}а можно найти на Яндекс.Маркете!'
+        res['response']['end_session'] = f
+        if not f:
+            sessionStorage[user_id] = {
+                'suggests': [
+                    "Не хочу.",
+                    "Не буду.",
+                    "Отстань!",
+                ],
+                'task': 2
+            }
+            res['response']['text'] += '\nА теперь... Купи кролика!'
+            res['response']['buttons'] = get_suggests(user_id)
         return
 
     res['response']['text'] = \
-        f"Все говорят '{req['request']['original_utterance']}', а ты купи слона!"
+        f"Все говорят '{req['request']['original_utterance']}', а ты купи {word}а!"
     res['response']['buttons'] = get_suggests(user_id)
 
 
